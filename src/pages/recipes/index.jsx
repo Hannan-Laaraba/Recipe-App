@@ -1,24 +1,39 @@
 import { Container, TextField, Grid, Card, CardMedia, CardContent, Typography } from "@mui/material";
+import RecipeItem from "../../components/recipe-item";
+import { useEffect, useState } from "react";
 
-export default function Recipes(){
+export default function Recipes() {
+
+    const [recipes, setRecipes] = useState([]);
+
+    const searchRecipes = () => {
+        //prepare url
+        const url = new URL('https://api.spoonacular.com/recipes/complexSearch');
+        url.searchParams.append('apiKey', '961d51e43d8d42f0bcb8c0990d9170e8');
+        //fetch recipes
+        fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+                //update recipes state
+                setRecipes(data.results);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+
+    }
+
+    useEffect(searchRecipes, []);
+
     return (
-       <Container sx={{my:'2rem'}} maxWidth="sm">
-        <TextField fullWidth id="outlined-basic" label="Enter a keyword to search recipes and hit Enter" variant="outlined" />
+        <Container sx={{ my: '2rem' }} >
+            <TextField fullWidth id="outlined-basic" label="Search recipes" variant="outlined" />
 
-       
 
-        <Grid sx={{ mt:'1rem'}} container spacing={3}>
-            <Grid item xs={4}>
-                <Card>
-                    <CardMedia
-                    sx={{height: 250}} 
-                    image= "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJlY2lwZXN8ZW58MHx8MHx8fDA%3D"/>
-                </Card>
-                <CardContent>
-                    <Typography variant="h5">Salad</Typography>
-                </CardContent>
+
+            <Grid sx={{ mt: '1rem' }} container spacing={3}>
+                {recipes.map((recipe) => <RecipeItem key={recipe.id} title={recipe.title} image={recipe.image} />)}
             </Grid>
-        </Grid>
-       </Container>
+        </Container>
     );
 }
