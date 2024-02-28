@@ -1,13 +1,17 @@
 import { Container, TextField, Grid, Card, CardMedia, CardContent, Typography } from "@mui/material";
 import RecipeItem from "../../components/recipe-item";
 import { useEffect, useState } from "react";
+import noRecipes from "../../assets/images/undraw_no_data_re_kwbl.svg";
+import spinner from "../../assets/images/infinite-spinner.svg";
 
 export default function Recipes() {
 
     const [recipes, setRecipes] = useState([]);
     const [searchItem,setSearchItem] = useState("");
+    const [loading, setLoading] = useState (false);
 
     const searchRecipes = () => {
+        setLoading(true);
         //prepare url
         const url = new URL('https://api.spoonacular.com/recipes/complexSearch');
         url.searchParams.append('apiKey', process.env.REACT_APP_SPOONACULAR_API_KEY); //fetch recipes
@@ -21,6 +25,7 @@ export default function Recipes() {
             .catch((error) => {
                 console.log(error);
             })
+            .finally(() => setLoading(false));
 
     }
 
@@ -35,7 +40,15 @@ export default function Recipes() {
             
 
             <Grid sx={{ mt: '1rem' }} container spacing={3}>
-                {recipes.map((recipe) => <RecipeItem key={recipe.id} title={recipe.title} image={recipe.image} />)}
+                {loading ? (
+                    <Container sx={{display:'flex', justifyContent:'center'}}>
+                        <img src={spinner} width="50%"/>
+                    </Container>
+                ) : recipes.length > 0 ? recipes.map((recipe) => <RecipeItem key={recipe.id} title={recipe.title} image={recipe.image} />) : (
+                    <Container sx={{display:'flex', justifyContent:'center'}}>
+                        <img src={noRecipes} width="30%"/>
+                    </Container>
+                )}
             </Grid>
         </Container>
     );
